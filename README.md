@@ -124,10 +124,10 @@ build/my_program: $(SRCS:src/%.cpp=build/%.o) @echo "Linking build/my_program...
 pip install make-parser
 ```
 
-### git
+### git repository
 
-```shell
-git clone 
+```
+https://github.com/pssv7/make-parser.git
 ```
 
 ## Usage
