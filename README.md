@@ -27,6 +27,7 @@ programmatically.
 ### Example
 
 ### Makefile
+
 ```
 CC = gcc
 CFLAGS = -Wall -g
@@ -42,26 +43,29 @@ build:
 ```
 
 ### command
+
 ```
 parse_make -f .\Makefile -c build
 ```
 
 ### output
+
 ```
 mkdir -p build gcc -Wall -g src/main.c -o build/main
 ```
+
 ### Example:02
 
 ### Sample Makefile
+
 ```
 # Variables
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17 -g
-LDFLAGS = -lm
 SRC_DIR = src
 BUILD_DIR = build
 INCLUDE_DIR = include
-TARGET = $(BUILD_DIR)/my_program
+TARGET = $(BUILD_DIR)/complex_program
 
 # Automatic variables
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
@@ -76,7 +80,9 @@ all: $(TARGET)
 # Linking the target
 $(TARGET): $(OBJS)
 	@echo "Linking $(TARGET)..."
-	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -I$(INCLUDE_DIR) $^ -o $@ \
+	&& echo "Build successful!" \
+	|| echo "Build failed!"
 
 # Compiling source files to object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -87,7 +93,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 # Cleaning build files
 clean:
 	@echo "Cleaning up..."
-	@rm -rf $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR) && echo "Clean complete!" || echo "Clean failed!"
 
 # Rebuilding the project
 rebuild: clean all
@@ -99,21 +105,69 @@ run: all
 
 # Catch-all target for invalid targets
 %:
-	@echo "Unknown target: $@"
+	@echo "Error: Unknown target '$@'."
 	@echo "Available targets: all, clean, rebuild, run"
+
 ```
 
 ### command
+
+1. When no target command is given:
+
 ```
-parse_make -f .\Makefile -c all
+parse_make -f .\Makefile 
 ```
 
 ### output
+
 ```
-build/my_program: $(SRCS:src/%.cpp=build/%.o) @echo "Linking build/my_program..." g++ -Wall -Wextra -std=c++17 -g -Iinclude $^ -o $@ -lm build/%.o: src/%.cpp @mkdir -p build @echo "Compiling $<..." g++ -Wall -Wextra -std=c++17 -g -Iinclude -c $< -o $@
+Variables:
+ROOT_DIR = C:\Users\sponnuru\PycharmProjects\make-parser
+CXX = g++
+CXXFLAGS = -Wall -Wextra -std=c++17 -g
+SRC_DIR = src
+BUILD_DIR = build
+INCLUDE_DIR = include
+TARGET = build/complex_program
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(SRCS:src/%.cpp=build/%.o)
+
+Rules:
+all:
+	build/complex_program: $(SRCS:src/%.cpp=build/%.o)
+	@echo "Linking build/complex_program..."
+	g++ -Wall -Wextra -std=c++17 -g -Iinclude $^ -o $@ && echo "Build successful!" || echo "Build failed!"
+	build/%.o: src/%.cpp
+	@mkdir -p build
+	@echo "Compiling $<..."
+	g++ -Wall -Wextra -std=c++17 -g -Iinclude -c $< -o $@
+clean:
+	@echo "Cleaning up..."
+	@rm -rf build && echo "Clean complete!" || echo "Clean failed!"
+rebuild:
+run:
+	@echo "Running build/complex_program..."
+	@./build/complex_program
+	%:
+	@echo "Error: Unknown target '$@'."
+	@echo "Available targets: all, clean, rebuild, run"
+
+```
+
+2. When a wrong target command is given:
+
+```
+parse_make -f .\Makefile -c wrong
+```
+
+### output
+
+```
+The command "wrong" does not exist, please re-check the target command.
 ```
 
 ## Requirements:
+
 - Python >= 3.6
 
 ## Installation:
@@ -132,8 +186,7 @@ https://github.com/pssv7/make-parser.git
 
 ## Usage
 
-
 ```shell
-parse_make -d [PATH_TO_MAKEFILE] -c [TARGET]
+parse_make -d [PATH_TO_MAKEFILE] -c [TARGET_COMMAND](OPTIONAL)
 ```
 
