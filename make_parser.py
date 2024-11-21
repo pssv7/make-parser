@@ -4,16 +4,22 @@ from pathlib import Path
 
 
 def get_value(contents: dict, command: str):
-    if command in contents['rules']:
-        dict = contents['rules'][command]['commands']
-        return ' '.join(dict)
-    elif command in contents['commands']:
-        dict = contents['commands'][command]
-        for _ in dict.values():
-            for values in _:
-                print(values, end="")
+    if not command:
+        output = []
+        output.append("Variables:")
+        for var_name, var_value in contents.get('variables', {}).items():
+            output.append(f"{var_name} = {var_value}")
+        output.append("\nRules:")
+        for rule_name, rule_data in contents.get('rules', {}).items():
+            output.append(f"{rule_name}:")
+            for cmd in rule_data.get('commands', []):
+                output.append(f"\t{cmd}")
+        return '\n'.join(output)
+    elif command in contents.get('rules', {}):
+        commands = contents['rules'][command]['commands']
+        return '\n'.join(commands)
     else:
-        print(f'the command {command} does not exist, check it again')
+        return f"The command \"{command}\" does not exist, please re-check the target command"
 
 
 def make_load(file_path: Path):
@@ -100,7 +106,6 @@ def make_load(file_path: Path):
             if current_target:
                 current_commands.append(line)
                 continue
-
         # Save the last target's data if it exists
         if current_target:
             makefile_data["rules"][current_target] = {
@@ -134,6 +139,7 @@ def main():
     make_file_path = args.file_path
     command = args.commands
     contents = make_load(make_file_path)
+
     print(get_value(contents, command))
 
 
