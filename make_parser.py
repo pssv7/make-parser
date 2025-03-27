@@ -43,12 +43,10 @@ def make_load(file_path: Path):
             text = pattern.sub(replace_var, text)
         return text
 
-    def get_root():
-        script_directory = Path(__file__).parent
-        return str(script_directory)
+    def get_root(makefile_path: Path):
+        return makefile_path.parent.resolve().as_posix()
 
-
-    makefile_data["variables"]["ROOT_DIR"] = get_root()
+    makefile_data["variables"]["ROOT_DIR"] = get_root(file_path)
 
     with open(file_path, "r") as file:
         current_target = None
